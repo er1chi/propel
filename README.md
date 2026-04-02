@@ -1,4 +1,4 @@
-# Propel CRM 2.0
+# Propel CRM v2
 
 Updated version of my previous crm portfolio project with a lot more features since my skills have improved \
 including infrastructure as everything used is self-hosted/managed
