@@ -1,0 +1,51 @@
+services:
+  redis:
+    image: redis:8.6.2-alpine
+    profiles: [redis, backend]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: propel-redis
+    restart: unless-stopped
+    user: redis
+    read_only: true
+    tmpfs:
+      - /var/run/redis:size=1M,mode=1777
+      - /tmp:size=1M,mode=1777
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+      - FOWNER
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    volumes:
+      - redis_data:/var/lib/redis
+    networks:
+      - propel-backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  redis_data:
+    driver: local
+    name: propel_redis_data
+
+networks:
+  propel-backend:
+    driver: bridge
+    name: propel-backend

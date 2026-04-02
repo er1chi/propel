@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:18.3-alpine
+    profiles: [postgres, backend]
+    container_name: propel-postgres
+    restart: unless-stopped
+    user: postgres
+    read_only: true
+    tmpfs:
+      - /var/run/postgresql:size=10M,mode=1777
+      - /tmp:size=10M,mode=1777
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+      - FOWNER
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-propel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-propel}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - propel-backend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-propel} -d ${POSTGRES_DB:-propel}",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  postgres_data:
+    driver: local
+    name: propel_postgres_data
+
+networks:
+  propel-backend:
+    driver: bridge
+    name: propel-backend
