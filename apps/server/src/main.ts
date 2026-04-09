@@ -9,6 +9,7 @@ import compression from "compression";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
+    bodyParser: false, // Required for better-auth to handle raw request body
   });
 
   app.useLogger(app.get(Logger));

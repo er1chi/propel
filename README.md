@@ -19,6 +19,10 @@ Used on frontend because I've just done the common patterns so much atp and its 
 - [ ] notes
 - [ ] ai agents that handle some tasks(?)
 
+### Some Stretch Goals
+
+- [ ] Rewrite some deps to reduce amount of external dependencies
+
 ## Tech Used
 
 - Tailwind CSS, Shadcn UI

@@ -1,0 +1,14 @@
+services:
+  mailcrab:
+    image: marlonb/mailcrab:latest
+    container_name: propel-mailcrab
+    hostname: propel-mailcrab
+    profiles: ["mailcrab", "current", "all"]
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+networks:
+  propel-backend:
+    driver: bridge
+    name: propel-backend

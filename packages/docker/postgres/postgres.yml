@@ -1,24 +1,24 @@
 services:
   postgres:
     image: postgres:18.3-alpine
-    profiles: [postgres, backend]
+    profiles: ["postgres", "backend", all]
     container_name: propel-postgres
     restart: unless-stopped
-    user: postgres
-    read_only: true
-    tmpfs:
-      - /var/run/postgresql:size=10M,mode=1777
-      - /tmp:size=10M,mode=1777
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
-      - DAC_OVERRIDE
-      - FOWNER
-    security_opt:
-      - no-new-privileges:true
+    # user: postgres
+    # read_only: true
+    # tmpfs:
+    #   - /var/run/postgresql:size=10M,mode=1777
+    #   - /tmp:size=10M,mode=1777
+    # cap_drop:
+    #   - ALL
+    # cap_add:
+    #   - CHOWN
+    #   - SETGID
+    #   - SETUID
+    #   - DAC_OVERRIDE
+    #   - FOWNER
+    # security_opt:
+    #   - no-new-privileges:true
     deploy:
       resources:
         limits:

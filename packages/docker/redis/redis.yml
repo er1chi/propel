@@ -1,7 +1,7 @@
 services:
   redis:
     image: redis:8.6.2-alpine
-    profiles: [redis, backend]
+    profiles: ["redis", "backend", "all"]
     build:
       context: .
       dockerfile: Dockerfile
