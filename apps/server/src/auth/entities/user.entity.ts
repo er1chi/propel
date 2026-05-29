@@ -1,11 +1,14 @@
 import {
   Entity,
   Index,
+  OneToMany,
   PrimaryKey,
   Property,
 } from "@mikro-orm/decorators/legacy";
 import { v7 as uuidv7 } from "uuid";
 import { BaseEntity } from "./base.entity";
+import { Contact } from "../../contacts/entities/contact.entity";
+import { Collection } from "@mikro-orm/core";
 
 @Entity({ tableName: "users" })
 export class User extends BaseEntity {
@@ -71,4 +74,9 @@ export class User extends BaseEntity {
     comment: "Date when the user's ban expires",
   })
   banExpires?: Date;
+
+  @OneToMany(() => Contact, (contact) => contact.user, {
+    orphanRemoval: true,
+  })
+  contact = new Collection<Contact>(this);
 }

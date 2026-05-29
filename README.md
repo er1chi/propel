@@ -32,3 +32,9 @@ Used on frontend because I've just done the common patterns so much atp and its 
 - Redis + Queues, PostgreSQL
 - Minio
 - Docker
+
+### Reminder
+
+install socket firewall `npm i -g sfw` \
+and simply prepend to any npm related install command like: \
+`sfw pnpm install` or `sfw pnpm add --filter @repo/pkg npm-dep`

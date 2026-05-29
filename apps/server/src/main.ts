@@ -1,10 +1,17 @@
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
-import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder, OpenAPIObject } from "@nestjs/swagger";
 import { Logger, LoggerErrorInterceptor } from "nestjs-pino";
 import { AppModule } from "./app.module";
 import helmet from "helmet";
 import compression from "compression";
+import { auth } from "./auth/auth";
+import {
+  ComponentsObject,
+  SchemaObject,
+} from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
+import { ConfigService } from "@nestjs/config";
+import { Config } from "./common/config/types";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -12,6 +19,7 @@ async function bootstrap() {
     bodyParser: false, // Required for better-auth to handle raw request body
   });
 
+  app.enableShutdownHooks();
   app.useLogger(app.get(Logger));
   app.useGlobalInterceptors(new LoggerErrorInterceptor());
   app.use(helmet());
@@ -35,18 +43,11 @@ async function bootstrap() {
     }),
   );
 
-  const config = new DocumentBuilder()
-    .setTitle("Propel API")
-    .setDescription("Propel REST API documentation")
-    .setVersion("0.0.0")
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+  await setUpSwaggerUI(app);
 
-  app.enableShutdownHooks();
+  const configService = app.get(ConfigService);
+  const port = configService.get(Config.Port);
 
-  const port = process.env.PORT ?? 3001;
   await app.listen(port);
 
   const logger = app.get(Logger);
@@ -54,3 +55,62 @@ async function bootstrap() {
   logger.log(`📚 API docs at http://localhost:${port}/docs`);
 }
 bootstrap();
+
+async function setUpSwaggerUI(app: INestApplication<any>) {
+  const config = new DocumentBuilder()
+    .setTitle("Propel API")
+    .setDescription("things that you can can do")
+    .setVersion("1.0")
+    .addTag("propel")
+    .build();
+
+  const nestDocument = SwaggerModule.createDocument(app, config);
+  const betterAuthOpenAPI = await auth.api.generateOpenAPISchema();
+
+  const paths = Object.fromEntries(
+    Object.entries(betterAuthOpenAPI.paths).map((path) => {
+      return [`/api/auth${path[0]}`, path[1]];
+    }),
+  );
+
+  for (const path in paths) {
+    for (const method in paths[path]) {
+      //@ts-expect-error mmm
+      paths[path][method].tags = ["better auth"];
+
+      if (path.includes("admin")) {
+        //@ts-expect-error mmm
+        paths[path][method].tags = ["better auth - admin"];
+      }
+    }
+  }
+
+  const document: OpenAPIObject = {
+    openapi: nestDocument.openapi,
+    paths: {
+      ...nestDocument.paths,
+      ...(paths as OpenAPIObject["paths"]),
+      ...(nestDocument.paths["/api/auth/{path}"] && {}),
+    },
+    info: nestDocument.info,
+    tags: nestDocument.tags,
+    servers: nestDocument.servers,
+    components: {
+      //@ts-ignore
+      schemas: {
+        ...nestDocument.components?.schemas,
+        ...betterAuthOpenAPI.components.schemas,
+      },
+      securitySchemes: {
+        ...(betterAuthOpenAPI.components
+          .securitySchemes as ComponentsObject["securitySchemes"]),
+      },
+    },
+    security: betterAuthOpenAPI.security,
+  };
+  console.log(document);
+
+  delete document.paths["/api/auth/{path}"];
+
+  SwaggerModule.setup("swagger-ui", app, document);
+}

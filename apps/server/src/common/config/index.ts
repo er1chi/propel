@@ -1,7 +1,8 @@
 // TODO: obviously remove this
 // @ts-nocheck
 import { IConfig } from "./types";
-import { DeepPartial, IS_PROD } from "../../types";
+import { DeepPartial } from "@mikro-orm/core";
+import { IS_PROD } from "@/types";
 
 export const c = (): DeepPartial<IConfig> => {
   return {

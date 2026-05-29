@@ -3,8 +3,6 @@ import { Migrator } from "@mikro-orm/migrations";
 import { defineConfig, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { NodeEnvironment } from "@/types";
 import { ReflectMetadataProvider } from "@mikro-orm/decorators/legacy";
-// import * as entities from "./entities/";
-// import * as entities from ""
 
 export const baseCfg: PostgreSqlOptions = {
   driver: PostgreSqlDriver,

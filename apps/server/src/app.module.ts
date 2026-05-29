@@ -8,7 +8,7 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { createKeyv } from "@keyv/redis";
 
 import { AuthModule } from "@thallesp/nestjs-better-auth";
-import { UsersModule } from "@/users/users.module";
+import { ContactsModule } from "./contacts/contacts.module";
 
 import mikroConfig from "./db/mikro-orm.config";
 import { c } from "./common/config";
@@ -71,8 +71,7 @@ import { IConfig } from "@/common/config/types";
         rawBody: true,
       },
     }),
-
-    UsersModule,
+    ContactsModule,
   ],
 })
 export class AppModule {}
